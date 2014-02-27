@@ -1,13 +1,13 @@
 <!doctype html>
 
 <html>
-<head><meta name="build" content="20140225223540" />
+<head><meta name="build" content="20140227133635" />
   <meta charset="utf-8" />
   <title>Speed tests</title>
-  <link rel="stylesheet" type="text/css" media="all" href="style.css?pEgMawk8OPFfyOT_WTapYg" />
+  <link rel="stylesheet" type="text/css" media="all" href="style.css?dWKstcGc8Q_xH9vxef_j9A" />
 </head>
 <body>
-  <script type="text/javascript" src="script.js?3HKM2Q_iG8R-kBSBWnrmBQ"></script>
+  <script type="text/javascript" src="script.js?aYAUI8PG9WGg3EKFc_CqWg"></script>
   <script type="text/javascript" src="script1.js?h4m8gJggONVszIC2nNbvWg"></script>
   <div id="tests"></div>
   <div style="overflow:hidden;clear:both">
@@ -23,19 +23,20 @@
     </div>
     <div style="overflow:hidden">
       Compiled:
-      <div id="compiled" style="border:1px solid #000;min-height:4em;white-space:pre">
+      <div id="compiled" class="Basis-SyntaxHighlight" style="border:1px solid #000;min-height:4em;white-space:pre">
       </div>
     </div>
   </div>
 
-  <script type="text/javascript">basis.require("./0.js");basis.require("./2.js");basis.require("./4.js");var benchmark=basis.require("./5.js"),COUNT=1E4,res_;function testCode(a,b){$("#init").val(b||"");$("#code").val(a||"");run()}
-function run(a){var b=a||COUNT;a=$("#init").val().trim()||"";a="var a_ = [], time_;\n"+(a?a+"\n":"")+"\ntime_ = benchmark.time();\n\nfor (var i = 0; i < count; i++){\n  "+$("#code").val().trim().replace(/\r/g,"").replace(/\n/g,"\n  ")+"\n}\n\ntime_ = benchmark.time(time_);\n\nreturn [a_, time_];";try{var c=new Function("count",a)}catch(d){$("#compiled").text("Compilation error: "+d);return}$("#compiled").text(basis.utils.info.fn(c).body.trim());res_=null;try{c(1E3)}catch(f){$("#time").html("Execution error: "+
+  <script type="text/javascript">basis.require("./0.js");basis.require("./2.js");basis.require("./4.js");var benchmark=basis.require("./5.js"),highlight=basis.require("./6.js").highlight,COUNT=1E4,res_;basis.require("./6.js").useStyle();function testCode(a,b){$("#init").val(b||"");$("#code").val(a||"");run()}
+function run(a){var b=a||COUNT;a=$("#init").val().trim()||"";a="var a_ = [], time_;\n"+(a?a+"\n":"")+"\ntime_ = benchmark.time();\n\nfor (var i = 0; i < count; i++){\n  "+$("#code").val().trim().replace(/\r/g,"").replace(/\n/g,"\n  ")+"\n}\n\ntime_ = benchmark.time(time_);\n\nreturn [a_, time_];";try{var c=new Function("count",a)}catch(d){$("#compiled").text("Compilation error: "+d);return}$("#compiled").html(highlight(basis.utils.info.fn(c).body.trim(),"js",{noLineNumber:!0}));res_=null;try{c(1E3)}catch(f){$("#time").html("Execution error: "+
 f);return}setTimeout(function(){res_=c(b);$("#time").html(basis.number.group(b)+" runs in <b>"+res_[1]+"</b>ms")},100)}
 $(function(){function a(a,b,c){return $("<button>"+g+"</button>").click(function(){testCode(b,c)})[0]}for(var b=[{name:"Empty config",init:"",tests:{"native":"new Object()",basis:"new basis.data.Object()","basis.entity":{init:"var Type = basis.entity.createType();",code:"Type({})"},backbone:"new Backbone.Model()",ember:"Ember.Object.create()"}},{name:"3 property data",init:"var data = { p1: 1, p2: 2, p3: 3 };",tests:{"native":"new Object(data)",basis:"new basis.data.Object({ data: data })","basis.entity":{init:"var Type = basis.entity.createType(null, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));",
 code:"Type(data)"},backbone:"new Backbone.Model(data)",ember:"Ember.Object.create(data)"}},{name:"10 property data",init:"var data = { p1: 1, p2: 2, p3: 3, p4: 4, p5: 5, p6: 6, p7: 7, p8: 8, p9: 9, p10: 10 };",tests:{"native":"new Object(data)",basis:"new basis.data.Object({ data: data })","basis.entity":{init:"var Type = basis.entity.createType(null, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));",code:"Type(data)"},backbone:"new Backbone.Model(data)",
 ember:"Ember.Object.create(data)"}},{name:"20 property data",init:"var data = { p1: 1, p2: 2, p3: 3, p4: 4, p5: 5, p6: 6, p7: 7, p8: 8, p9: 9, p10: 10, p11: 1, p12: 2, p13: 3, p14: 4, p15: 5, p16: 6, p17: 7, p18: 8, p19: 9, p20: 10 };",tests:{"native":"new Object(data)",basis:"new basis.data.Object({ data: data })","basis.entity":{init:"var Type = basis.entity.createType(null, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));",code:"Type(data)"},backbone:"new Backbone.Model(data)",
 ember:"Ember.Object.create(data)"}},{name:"1 listeners on create",init:"",tests:{basis:{init:"var HANDLER = { foo: function(){} };",code:"new basis.data.Object({ handler: HANDLER })"},backbone:{init:"var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};\nvar Foo = Backbone.Model.extend({ initialize: function(){\n  this.on('foo', foo);\n}});",code:"new Foo()"}}},{name:"1 listeners after create",init:"",tests:{basis:{init:"var HANDLER = { foo: function(){} };",code:"var o = new basis.data.Object();\no.addHandler(HANDLER);"},
 backbone:{init:"var foo = function(){};",code:"var o = new Backbone.Model();\no.on('foo', foo);"}}},{name:"3 listeners on create",init:"",tests:{basis:{init:"var HANDLER = { foo: function(){}, bar: function(){}, baz: function(){} };",code:"new basis.data.Object({ handler: HANDLER })"},backbone:{init:"var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};\nvar Foo = Backbone.Model.extend({ initialize: function(){\n  this.on('foo', foo);\n  this.on('bar', bar);\n  this.on('baz', baz);\n}});",
-code:"new Foo()"}}}],c=0;c<b.length;c++){var d=b[c],f=$('<div class="testButtons"><h3>'+d.name+"</h3></div>")[0],g;for(g in d.tests){var e=d.tests[g],h=[d.init||""];"string"!=typeof e&&(h.push(e.init||""),e=e.code);f.appendChild(a(g,e,h.filter(Boolean).join("\n")))}$("#tests").append(f)}})</script>
+code:"new Foo()"}}},{name:"3 listeners after create",init:"",tests:{basis:{init:"var HANDLER = { foo: function(){}, bar: function(){}, baz: function(){} };",code:"var o = new basis.data.Object();\no.addHandler(HANDLER);"},backbone:{init:"var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};",code:"var o = new Backbone.Model();\no.on('foo', foo);\no.on('bar', bar);\no.on('baz', baz);"}}}],c=0;c<b.length;c++){var d=b[c],f=$('<div class="testButtons"><h3>'+d.name+"</h3></div>")[0],
+g;for(g in d.tests){var e=d.tests[g],h=[d.init||""];"string"!=typeof e&&(h.push(e.init||""),e=e.code);f.appendChild(a(g,e,h.filter(Boolean).join("\n")))}$("#tests").append(f)}})</script>
 </body>
 </html>

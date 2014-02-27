@@ -39,6 +39,21 @@
       color: red;
       margin: 0 2px;
     }
+
+    .Basis-SyntaxHighlight
+    {
+      background: #FAFAFA;
+      margin: 0 !important;
+    }
+    .Basis-SyntaxHighlight .odd,
+    .Basis-SyntaxHighlight .even
+    {
+      background: none !important;
+    }
+    .Basis-SyntaxHighlight .lineContent
+    {
+      border: none !important;
+    }
   </style>
 </head>
 <body>
@@ -63,7 +78,7 @@
     </div>
     <div style="overflow: hidden">
       Compiled:
-      <div id="compiled" style="border: 1px solid black; min-height: 4em; white-space: pre;">
+      <div id="compiled" class="Basis-SyntaxHighlight" style="border: 1px solid black; min-height: 4em; white-space: pre;">
       </div>
     </div>
   </div>
@@ -73,8 +88,11 @@
     basis.require('basis.entity');
     basis.require('basis.utils.info');
     var benchmark = basis.require('basis.utils.benchmark');
+    var highlight = basis.require('basis.utils.highlight').highlight;
     var COUNT = 10000;
     var res_;
+
+    basis.require('basis.utils.highlight').useStyle();
 
     function testCode(code, init){
       $('#init').val(init || '');
@@ -104,7 +122,9 @@
         return;
       }
 
-      $('#compiled').text(basis.utils.info.fn(fn).body.trim());
+      $('#compiled').html(highlight(basis.utils.info.fn(fn).body.trim(), 'js', { 
+        noLineNumber: true
+      }));
       res_ = null; // drop data
       try {
         fn(1000); // warm up
@@ -217,6 +237,20 @@
             'backbone': {
               init: 'var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};\nvar Foo = Backbone.Model.extend({ initialize: function(){\n  this.on(\'foo\', foo);\n  this.on(\'bar\', bar);\n  this.on(\'baz\', baz);\n}});',
               code: 'new Foo()'
+            },
+          }
+        },
+        {
+          name: '3 listeners after create',
+          init: '',
+          tests: {
+            'basis': {
+              init: 'var HANDLER = { foo: function(){}, bar: function(){}, baz: function(){} };',
+              code: 'var o = new basis.data.Object();\no.addHandler(HANDLER);'
+            },
+            'backbone': {
+              init: 'var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};',
+              code: 'var o = new Backbone.Model();\no.on(\'foo\', foo);\no.on(\'bar\', bar);\no.on(\'baz\', baz);'
             },
           }
         }
