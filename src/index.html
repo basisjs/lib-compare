@@ -33,11 +33,27 @@
     {
       font-size: 20px;
       font-family: Arial;
+      line-height: 1.2;
     }
     #time B
     {
       color: red;
       margin: 0 2px;
+    }
+
+    .Basis-SyntaxHighlight
+    {
+      background: #FAFAFA;
+      margin: 0 !important;
+    }
+    .Basis-SyntaxHighlight .odd,
+    .Basis-SyntaxHighlight .even
+    {
+      background: none !important;
+    }
+    .Basis-SyntaxHighlight .lineContent
+    {
+      border: none !important;
     }
   </style>
 </head>
@@ -49,7 +65,11 @@
   <script src="../bower_components/backbone/backbone.js"></script>
   <script src="../bower_components/ember/ember.min.js"></script>
 
-  <div id="tests"></div>
+  <a href="https://github.com/lahmatiy/lib-compare"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+  <div style="position: relative" id="tests">
+    <label style="margin: 1em 0; display: block"><input type="checkbox" id="autorun" checked/> Auto-run test on select</label>
+  </div>
   <div style="overflow: hidden; clear: both">
     <hr/>
     <div id="time">&#xA0;</div>
@@ -59,11 +79,17 @@
       <textarea id="init" rows="5"></textarea>
       Code:
       <textarea id="code" rows="5"></textarea>
+      <select id="count">
+        <option value="1000">1 000</option>
+        <option value="10000" selected>10 000</option>
+        <option value="100000">100 000</option>
+        <option value="1000000">1 000 000</option>
+      </select>
       <button onclick="run()">run</button>
     </div>
     <div style="overflow: hidden">
       Compiled:
-      <div id="compiled" style="border: 1px solid black; min-height: 4em; white-space: pre;">
+      <div id="compiled" class="Basis-SyntaxHighlight" style="border: 1px solid black; min-height: 4em; white-space: pre;">
       </div>
     </div>
   </div>
@@ -73,17 +99,22 @@
     basis.require('basis.entity');
     basis.require('basis.utils.info');
     var benchmark = basis.require('basis.utils.benchmark');
+    var highlight = basis.require('basis.utils.highlight').highlight;
     var COUNT = 10000;
     var res_;
+
+    basis.require('basis.utils.highlight').useStyle();
 
     function testCode(code, init){
       $('#init').val(init || '');
       $('#code').val(code || '');
-      run();
+      $('#compiled').html('');
+      if ($('#autorun')[0].checked)
+        run();
     }
 
     function run(cnt){
-      var count = cnt || COUNT;
+      var count = $('#count').val();
       var initCode = $('#init').val().trim() || '';
       var code = 
         'var a_ = [], time_;\n' +
@@ -104,10 +135,13 @@
         return;
       }
 
-      $('#compiled').text(basis.utils.info.fn(fn).body.trim());
+      $('#compiled').html(highlight(basis.utils.info.fn(fn).body.trim(), 'js', { 
+        noLineNumber: true
+      }));
+      $('#time').html('Running...');
       res_ = null; // drop data
       try {
-        fn(1000); // warm up
+        fn(Math.min(1000, count)); // warm up
       } catch(e) {
         $('#time').html('Execution error: ' + e);
         return;
@@ -124,26 +158,26 @@
       var suites = [
         {
           name: 'Empty config',
-          init: '',
+          init: 'var data = {};',
           tests: {
             'native': 'new Object()',
-            'basis': 'new basis.data.Object()',
+            'basis.data': 'new basis.data.Object({ data: data })',
             'basis.entity': {
-              init: 'var Type = basis.entity.createType();',
-              code: 'Type({})'
+              init: 'var Type = basis.entity.createType({ all: false });',
+              code: 'Type(data)'
             },
-            'backbone': 'new Backbone.Model()',
-            'ember': 'Ember.Object.create()'
+            'backbone': 'new Backbone.Model(data)',
+            'ember': 'Ember.Object.create(data)'
           }
         },
         {
-          name: '3 property data',
+          name: '3 data fields',
           init: 'var data = { p1: 1, p2: 2, p3: 3 };',
           tests: {
             'native': 'new Object(data)',
-            'basis': 'new basis.data.Object({ data: data })',
+            'basis.data': 'new basis.data.Object({ data: data })',
             'basis.entity': {
-              init: 'var Type = basis.entity.createType(null, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
+              init: 'var Type = basis.entity.createType({ all: false }, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
               code: 'Type(data)'
             },
             'backbone': 'new Backbone.Model(data)',
@@ -151,13 +185,13 @@
           }
         },
         {
-          name: '10 property data',
+          name: '10 data fields',
           init: 'var data = { p1: 1, p2: 2, p3: 3, p4: 4, p5: 5, p6: 6, p7: 7, p8: 8, p9: 9, p10: 10 };',
           tests: {
             'native': 'new Object(data)',
-            'basis': 'new basis.data.Object({ data: data })',
+            'basis.data': 'new basis.data.Object({ data: data })',
             'basis.entity': {
-              init: 'var Type = basis.entity.createType(null, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
+              init: 'var Type = basis.entity.createType({ all: false }, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
               code: 'Type(data)'
             },
             'backbone': 'new Backbone.Model(data)',
@@ -165,13 +199,13 @@
           }
         },
         {
-          name: '20 property data',
+          name: '20 data fields',
           init: 'var data = { p1: 1, p2: 2, p3: 3, p4: 4, p5: 5, p6: 6, p7: 7, p8: 8, p9: 9, p10: 10, p11: 1, p12: 2, p13: 3, p14: 4, p15: 5, p16: 6, p17: 7, p18: 8, p19: 9, p20: 10 };',
           tests: {
             'native': 'new Object(data)',
-            'basis': 'new basis.data.Object({ data: data })',
+            'basis.data': 'new basis.data.Object({ data: data })',
             'basis.entity': {
-              init: 'var Type = basis.entity.createType(null, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
+              init: 'var Type = basis.entity.createType({ all: false }, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
               code: 'Type(data)'
             },
             'backbone': 'new Backbone.Model(data)',
@@ -189,7 +223,7 @@
             'backbone': {
               init: 'var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};\nvar Foo = Backbone.Model.extend({ initialize: function(){\n  this.on(\'foo\', foo);\n}});',
               code: 'new Foo()'
-            },
+            }
           }
         },
         {
@@ -204,20 +238,69 @@
               init: 'var foo = function(){};',
               code: 'var o = new Backbone.Model();\no.on(\'foo\', foo);'
             },
+            ember: {
+              init: 'var foo = function(){};',
+              code: 'var o = Ember.Object.create();\no.addObserver(\'foo\', null, foo);'
+            }
           }
         },
         {
-          name: '3 listeners on create',
+          name: '2 listeners after create',
+          init: '',
+          tests: {
+            'basis': {
+              init: 'var HANDLER = { foo: function(){}, bar: function(){} };',
+              code: 'var o = new basis.data.Object();\no.addHandler(HANDLER);'
+            },
+            'backbone': {
+              init: 'var foo = function(){};\nvar bar = function(){};',
+              code: 'var o = new Backbone.Model();\no.on(\'foo\', foo);\no.on(\'bar\', bar);'
+            },
+            ember: {
+              init: 'var foo = function(){};\nvar bar = function(){};',
+              code: 'var o = Ember.Object.create();\no.addObserver(\'foo\', null, foo);\no.addObserver(\'bar\', null, bar);'
+            }
+          }
+        },
+        {
+          name: '3 listeners after create',
           init: '',
           tests: {
             'basis': {
               init: 'var HANDLER = { foo: function(){}, bar: function(){}, baz: function(){} };',
-              code: 'new basis.data.Object({ handler: HANDLER })'
+              code: 'var o = new basis.data.Object();\no.addHandler(HANDLER);'
             },
             'backbone': {
-              init: 'var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};\nvar Foo = Backbone.Model.extend({ initialize: function(){\n  this.on(\'foo\', foo);\n  this.on(\'bar\', bar);\n  this.on(\'baz\', baz);\n}});',
-              code: 'new Foo()'
+              init: 'var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};',
+              code: 'var o = new Backbone.Model();\no.on(\'foo\', foo);\no.on(\'bar\', bar);\no.on(\'baz\', baz);'
             },
+            ember: {
+              init: 'var foo = function(){};\nvar bar = function(){};\nvar baz = function(){};',
+              code: 'var o = Ember.Object.create();\no.addObserver(\'foo\', null, foo);\no.addObserver(\'bar\', null, bar);\no.addObserver(\'baz\', null, baz);'
+            }
+          }
+        },
+        {
+          name: '10 data fields, 1 listener',
+          init: 'var data = { p1: 1, p2: 2, p3: 3, p4: 4, p5: 5, p6: 6, p7: 7, p8: 8, p9: 9, p10: 10 };',
+          tests: {
+            'basis.data': {
+              init: 'var HANDLER = { foo: function(){} };',
+              code: 'var o = new basis.data.Object({ data: data });\no.addHandler(HANDLER);'
+            },
+            'basis.entity': {
+              init: 'var HANDLER = { foo: function(){} };\n' +
+                    'var Type = basis.entity.createType({ all: false }, basis.object.keys(data).reduce(function(res, key){ res[key] = basis.fn.$self; return res; }, {}));',
+              code: 'var o = Type(data);\no.addHandler(HANDLER);'
+            },
+            'backbone': {
+              init: 'var foo = function(){};',
+              code: 'var o = new Backbone.Model(data);\no.on(\'foo\', foo);'
+            },
+            ember: {
+              init: 'var foo = function(){};',
+              code: 'var o = Ember.Object.create(data);\no.addObserver(\'foo\', null, foo);'
+            }
           }
         }
       ];
