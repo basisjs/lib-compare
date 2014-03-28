@@ -2,7 +2,7 @@
   "name": "speed/memory tests",
   "version": "0.0.0",
   "dependencies": {
-    "basisjs": "1.2.0",
+    "basisjs": "1.2.1",
     "backbone": "~1.1.2",
     "ember": "~1.4.0"
   }
